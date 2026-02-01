@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Deepgram Documentation
+    url: https://developers.deepgram.com
+    about: Official Deepgram developer documentation
+  - name: API Reference
+    url: https://developers.deepgram.com/reference
+    about: Deepgram API reference documentation
+  - name: Community Discussions
+    url: https://github.com/orgs/deepgram/discussions
+    about: Ask questions and discuss with the Deepgram community
+  - name: Discord Community
+    url: https://discord.gg/deepgram
+    about: Join our Discord server for real-time support

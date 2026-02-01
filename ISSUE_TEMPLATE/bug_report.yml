@@ -1,0 +1,170 @@
+name: Bug Report
+description: Report a bug or issue with this Deepgram starter
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug! Please fill out the information below to help us investigate and fix the issue.
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      description: Where are you running the starter?
+      options:
+        - Development (local)
+        - Production
+        - Docker
+        - Cloud (AWS, GCP, Azure, etc.)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating System
+      description: What operating system are you using?
+      placeholder: "e.g., macOS 14.0, Ubuntu 22.04, Windows 11"
+    validations:
+      required: true
+
+  - type: input
+    id: runtime-version
+    attributes:
+      label: Runtime Version
+      description: What version of the runtime are you using?
+      placeholder: "e.g., Node.js 24.0.0, Python 3.12, Go 1.21"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is.
+      placeholder: Describe the issue you're experiencing...
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Detailed steps to reproduce the behavior
+      placeholder: |
+        1. Clone the repository
+        2. Run 'make init'
+        3. Start the server with 'make dev'
+        4. Navigate to http://localhost:8080
+        5. Click on '...'
+        6. See error
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe what should happen...
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: Describe what actually happened...
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs/Errors
+      description: Please copy and paste any relevant log output or error messages
+      render: shell
+      placeholder: |
+        Paste logs here...
+
+  - type: textarea
+    id: env-vars
+    attributes:
+      label: Environment Variables
+      description: List any relevant environment variables (DO NOT include API keys)
+      render: shell
+      placeholder: |
+        PORT=8080
+        HOST=0.0.0.0
+        NODE_ENV=development
+        # DO NOT include DEEPGRAM_API_KEY
+
+  - type: dropdown
+    id: makefile-command
+    attributes:
+      label: Which command were you running?
+      description: Which Makefile command were you using when the bug occurred?
+      options:
+        - make init
+        - make dev
+        - make start
+        - make build
+        - make install
+        - make install-frontend
+        - make clean
+        - make update
+        - make status
+        - Other
+        - Not applicable
+    validations:
+      required: false
+
+  - type: dropdown
+    id: frontend-issue
+    attributes:
+      label: Is this a frontend issue?
+      description: Does the bug occur in the frontend (browser) or backend (server)?
+      options:
+        - Backend only
+        - Frontend only
+        - Both frontend and backend
+        - Not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: browser-info
+    attributes:
+      label: Browser Information (if frontend issue)
+      description: If this is a frontend issue, what browser and version are you using?
+      placeholder: "e.g., Chrome 120.0, Firefox 121.0, Safari 17.0"
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Add any other context about the problem here
+      placeholder: |
+        - Screenshots
+        - Network requests
+        - Configuration files
+        - Anything else that might be relevant
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please confirm the following before submitting
+      options:
+        - label: I have searched existing issues to ensure this is not a duplicate
+          required: true
+        - label: I have included all required information above
+          required: true
+        - label: I have removed any sensitive information (API keys, credentials, etc.)
+          required: true
+        - label: I have tested with the latest version of the starter
+          required: false
