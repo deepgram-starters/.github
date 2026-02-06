@@ -20,8 +20,8 @@ All contributors are expected to follow our Code of Conduct. Please read it befo
 Each starter has specific requirements based on its framework. Common requirements include:
 
 - **For Node.js starters:** Node.js 24.0.0+, pnpm 10.0.0+ (via corepack)
-- **For Python starters:** Python 3.10+, pip or poetry
-- **For Go starters:** Go 1.21+
+- **For Python starters:** Python 3.10+, pip
+- **For Deno starters:** Deno 2.0+
 - **All starters:** Git, Make (for Makefile commands)
 
 ### Setting Up Development Environment
@@ -64,17 +64,18 @@ All Deepgram starters follow consistent patterns. Please review these documentat
 ### Key Standards
 
 1. **Port Conventions:**
-   - Port 8080: Main application (user-facing)
-   - Port 8081: Frontend dev server (internal)
+   - **User access:** Always `localhost:8080`
+   - **Backend API:** Port 8081
+   - **Frontend dev:** Port 8080 (Vite)
+   - Backend serves API on 8081; frontend dev server on 8080 proxies API requests
 
 2. **Environment Variables:**
    - `DEEPGRAM_API_KEY` (required)
-   - `PORT` (default: 8080)
+   - `PORT` (default: 8081 for backend)
    - `HOST` (default: 0.0.0.0)
-   - `VITE_PORT` (default: 8081)
 
 3. **Makefile Commands:**
-   All starters must include: `init`, `dev`, `start`, `build`, `install`, `install-frontend`, `clean`, `update`, `status`
+   All starters must include: `init`, `start`, `build`, `install`, `install-frontend`, `clean`, `update`, `status`, `check`, `test`
 
 4. **Metadata Endpoint:**
    All starters must implement `GET /api/metadata` reading from `deepgram.toml`
@@ -183,9 +184,9 @@ refactor(config): simplify API key loading logic
    ```bash
    make clean
    make init
-   make dev    # Test development mode
    make build
-   make start  # Test production mode
+   make start  # Start production server
+   make test   # Run conformance tests (in another terminal)
    ```
 
 3. **Create pull request:**
@@ -221,24 +222,21 @@ refactor(config): simplify API key loading logic
 - Use CommonJS (`require`/`module.exports`)
 - Use pnpm via corepack
 - Include `--no-deprecation` flag in scripts
-- Exact dependency versions
+- Exact dependency versions (no `^` or `~`)
 
 ### Python (Flask/Django/FastAPI)
 - Use `requirements.txt` with exact versions
 - Use `python-dotenv` for environment variables
 - Follow PEP 8 style guide
 - Use type hints where appropriate
+- Django starters use Daphne (ASGI) for WebSocket support
 
-### Go
-- Use Go modules (`go.mod`)
-- Follow Go conventions and idioms
-- Use `godotenv` for environment variables
-- Include proper error handling
-
-### Other Frameworks
-- Maintain consistency with documented patterns
-- Adapt to framework best practices
-- Ensure functional parity with Node.js version
+### Deno
+- Use native `Deno.serve()` (no Express)
+- Use native `Deno.upgradeWebSocket()` for WebSocket (no npm:ws)
+- Use `deno.json` for import maps
+- Explicit permissions: `--allow-net`, `--allow-read`, `--allow-env`
+- CORS pattern: backend on 8081, frontend on 8080 with explicit CORS headers
 
 ## WebSocket Starters (Critical)
 
@@ -267,17 +265,15 @@ process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 Before submitting a PR, verify:
 
 - [ ] `make init` successfully initializes project
-- [ ] `make dev` starts both backend and frontend
-- [ ] Application works at `http://localhost:8080` in dev mode
-- [ ] Hot reload works for code changes
+- [ ] Application works at `http://localhost:8080`
 - [ ] `make build` produces static files
-- [ ] `make start` serves production build
-- [ ] Production mode works identically to dev mode
+- [ ] `make start` serves production build at `http://localhost:8080`
 - [ ] No console errors in browser
 - [ ] `/api/metadata` endpoint returns correct data
 - [ ] API endpoints handle errors properly
 - [ ] No sensitive data (API keys) in commits
 - [ ] Code follows project patterns and style
+- [ ] Conformance tests pass: `make test` (requires `make start` running)
 
 ## Questions or Problems?
 
