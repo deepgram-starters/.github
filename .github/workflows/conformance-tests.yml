@@ -66,33 +66,33 @@ jobs:
           - { name: deno-voice-agent, use_case: voice-agent }
           - { name: csharp-voice-agent, use_case: voice-agent }
 
-    # Skip matrix entries that don't match the filter (when set)
-    if: ${{ !inputs.starter || inputs.starter == matrix.name }}
-
     env:
       PREVIEW_BASE: https://preview.dx.deepgram.com
       FLY_APP: deepgram-${{ matrix.name }}
 
     steps:
-      # Checkout the monorepo (shallow, no submodule content) for deepgram.toml files.
-      # Submodules use SSH URLs which need extra auth setup, so we init without cloning
-      # and only fetch the specific starter's deepgram.toml via its individual repo.
-      - name: Checkout monorepo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 1
+      # Skip this matrix entry if a starter filter is set and doesn't match
+      - name: Check starter filter
+        id: filter
+        run: |
+          if [[ -n "${{ inputs.starter }}" && "${{ inputs.starter }}" != "${{ matrix.name }}" ]]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Skipping ${{ matrix.name }} (filter: ${{ inputs.starter }})"
+          fi
 
       # Fetch the starter's deepgram.toml from its individual GitHub repo.
       # The metadata tests need REPO_PATH to point at a directory containing deepgram.toml.
       - name: Fetch starter deepgram.toml
+        if: steps.filter.outputs.skip != 'true'
         run: |
           mkdir -p "${{ matrix.name }}"
           curl -sf "https://raw.githubusercontent.com/deepgram-starters/${{ matrix.name }}/main/deepgram.toml" \
             -o "${{ matrix.name }}/deepgram.toml"
 
-      # Checkout starter-contracts as a sibling directory (avoid nested submodule SSH issues).
+      # Checkout starter-contracts (avoid nested submodule SSH issues).
       # Requires GH_PAT secret with repo scope for cross-org access (deepgram/starter-contracts).
       - name: Checkout starter-contracts
+        if: steps.filter.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           repository: deepgram/starter-contracts
@@ -100,21 +100,25 @@ jobs:
           token: ${{ secrets.GH_PAT }}
 
       - name: Setup Node.js
+        if: steps.filter.outputs.skip != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Install test dependencies
+        if: steps.filter.outputs.skip != 'true'
         working-directory: starter-contracts
         run: |
           corepack enable
           pnpm install --frozen-lockfile
 
       - name: Install Playwright browsers
+        if: steps.filter.outputs.skip != 'true'
         working-directory: starter-contracts
         run: npx playwright install chromium
 
       - name: Wake up Fly machine
+        if: steps.filter.outputs.skip != 'true'
         run: |
           echo "Waking up ${{ env.FLY_APP }}..."
           curl -sf "${{ env.PREVIEW_BASE }}/${{ matrix.name }}/" > /dev/null || true
@@ -133,6 +137,7 @@ jobs:
           exit 1
 
       - name: Run API tests (vitest)
+        if: steps.filter.outputs.skip != 'true'
         working-directory: starter-contracts
         env:
           BASE_URL: ${{ env.PREVIEW_BASE }}/${{ matrix.name }}
@@ -147,6 +152,7 @@ jobs:
             --exclude "**/session.test.js"
 
       - name: Run UI tests (playwright)
+        if: steps.filter.outputs.skip != 'true'
         working-directory: starter-contracts
         env:
           BASE_URL: ${{ env.PREVIEW_BASE }}/${{ matrix.name }}
@@ -156,7 +162,7 @@ jobs:
             "tests/${{ matrix.use_case }}/ui/workflow.spec.js"
 
       - name: Collect Fly logs on failure
-        if: failure()
+        if: failure() && steps.filter.outputs.skip != 'true'
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
@@ -171,7 +177,7 @@ jobs:
           fi
 
       - name: Upload failure artifacts
-        if: failure()
+        if: failure() && steps.filter.outputs.skip != 'true'
         uses: actions/upload-artifact@v4
         with:
           name: failure-${{ matrix.name }}
